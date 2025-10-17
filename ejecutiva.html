@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suite Ejecutiva Digital - Ecosistema ADSI</title>
+
+    <!-- Favicons y Metadatos PWA -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="150x150" href="favicon-150.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="msapplication-config" content="browserconfig.xml">
+    <meta name="theme-color" content="#0046FF">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Suite Ejecutiva Digital - Ecosistema ADSI">
+    <meta property="og:description" content="Transformamos confianza en resultados. Ecosistema inteligente para la gestión digital estratégica.">
+    <meta property="og:image" content="favicon-512.png">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_ES">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul-profundo: #001F6A;
+            --azul-electrico: #0046FF;
+            --gris-acero: #2D2D2D;
+            --cian-acento: #00E0FF;
+            --blanco: #FFFFFF;
+        }
+        
+        /* --- MEJORA: Scroll suave y normalización --- */
+        html, body {
+            scroll-behavior: smooth;
+            overflow-y: auto;
+        }
+        body, main, section {
+            margin: 0;
+            padding: 0;
+        }
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--blanco); color: var(--gris-acero); overflow-x: hidden; }
+        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; font-weight: 700; }
+        
+        main {
+            position: relative;
+        }
+
+        /* --- MEJORA: Comportamiento de escenas corregido --- */
+        .scene {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .scene.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            position: relative;
+        }
+        
+        .canvas-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .content-z { position: relative; z-index: 2; }
+        
+        .btn-primary { background-color: var(--cian-acento); color: var(--azul-profundo); font-weight: 600; padding: 1rem 2rem; border-radius: 9999px; transition: all 0.3s ease; text-decoration: none; display: inline-block; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 10px 20px -10px var(--cian-acento); }
+        .btn-secondary { background-color: var(--blanco); color: var(--azul-electrico); font-weight: 600; padding: 1rem 2rem; border-radius: 9999px; transition: all 0.3s ease; text-decoration: none; display: inline-block; }
+        .btn-secondary:hover { transform: scale(1.05); background-color: #f0f0f0; }
+
+        .question-step { display: none; }
+        .question-step.active { display: block; animation: fadeIn 0.5s; }
+        
+        details[open] summary { font-weight: 800; color: var(--cian-acento); }
+        
+        .typing-effect {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid rgba(255,255,255,0.75);
+            width: 0;
+            margin: 0 auto;
+        }
+        .animate-typing {
+            animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite;
+        }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: rgba(255,255,255,0.75); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        input[type="radio"]:checked + label { background-color: var(--azul-electrico); color: white; border-color: var(--azul-electrico); }
+
+        @media (max-width: 768px) {
+            main h1, main h2 { font-size: 2rem !important; line-height: 1.2 !important; }
+            .btn-primary, .btn-secondary { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="fixed top-0 left-0 w-full z-40 text-white py-4 px-8 flex justify-between items-center transition-all duration-500 backdrop-blur-sm" id="main-header">
+        <h1 class="font-extrabold tracking-widest text-sm uppercase opacity-70">ADSI Suite Ejecutiva</h1>
+        <nav class="hidden sm:flex gap-4 text-sm">
+            <a href="#manifiesto" data-target="manifiesto" class="scene-nav hover:underline">Propósito</a>
+            <a href="#ecosistema" data-target="ecosistema" class="scene-nav hover:underline">Ecosistema</a>
+            <a href="#resumen" data-target="resumen" class="scene-nav hover:underline">Evidencia</a>
+            <a href="#galeria" data-target="galeria" class="scene-nav hover:underline">Galería</a>
+            <a href="#cuestionario" data-target="cuestionario" class="scene-nav hover:underline">Acción</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="manifiesto" class="scene flex flex-col justify-center items-center text-center p-6" style="background-color: var(--azul-profundo); color: var(--blanco);">
+            <canvas class="canvas-bg" id="canvas-manifiesto"></canvas>
+            <div class="content-z">
+                <h1 class="text-4xl md:text-6xl font-extrabold leading-tight typing-effect">La tecnología no es solo código.<br>Es la conexión entre confianza, datos y personas.</h1>
+                <p class="mt-8 text-xl opacity-80">Somos un sistema vivo que aprende contigo. Transformamos confianza en resultados.</p>
+                <div class="mt-12">
+                    <a href="#ecosistema" data-target="ecosistema" class="btn-primary scene-nav">Explorar el Ecosistema ADSI →</a>
+                </div>
+                <div class="mt-16 opacity-70 text-sm">
+                    <p>Descubre cómo llevamos esta visión a la práctica.</p>
+                    <a href="#ecosistema" data-target="ecosistema" class="text-[--cian-acento] underline hover:opacity-80 scene-nav">Explorar el Ecosistema ADSI</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="ecosistema" class="scene py-24 px-6" style="background-color: var(--azul-electrico); color: var(--blanco);">
+            <canvas class="canvas-bg" id="canvas-ecosistema"></canvas>
+            <div class="content-z container mx-auto">
+                <div class="text-center pt-12">
+                    <h2 class="text-4xl md:text-5xl font-extrabold">Estructura Inteligente</h2>
+                    <p class="mt-4 text-xl max-w-3xl mx-auto opacity-90">Cada módulo piensa, siente y actúa contigo. Juntos, crean una red viva de resultados.</p>
+                </div>
+                <div id="ecosistema-grid" class="mt-16 grid grid-cols-2 md:grid-cols-3 gap-6"></div>
+                <div id="ecosistema-display" class="mt-8 bg-white/10 p-6 rounded-2xl min-h-[100px] text-center backdrop-blur-sm">
+                    <p>Selecciona un módulo para ver su descripción.</p>
+                </div>
+                <div class="mt-16 text-center">
+                    <p class="text-lg opacity-80 mb-4">Mira cómo este sistema cobra vida en una empresa real.</p>
+                    <a href="#resumen" data-target="resumen" class="btn-secondary scene-nav">Ver Caso QUIANLUJ KAIQI →</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="resumen" class="scene py-24 px-6" style="background-color: var(--gris-acero); color: var(--blanco);">
+            <canvas class="canvas-bg" id="canvas-resumen"></canvas>
+            <div class="content-z container mx-auto">
+                <div class="text-center pt-12">
+                    <h2 class="text-4xl md:text-5xl font-extrabold">Evidencia Real: El Impacto en Acción</h2>
+                    <p class="mt-4 text-xl max-w-3xl mx-auto opacity-80">El caso de QUIANLUJ KAIQI Colombia S.A.S. demuestra la transformación tangible que impulsa nuestro ecosistema.</p>
+                </div>
+                <div class="mt-12 max-w-4xl mx-auto space-y-4">
+                    <details class="bg-white/10 p-6 rounded-lg backdrop-blur-sm cursor-pointer">
+                        <summary class="text-xl font-semibold">Contexto: Una Marca con Potencial</summary>
+                        <div class="mt-4 opacity-90 space-y-4">
+                            <p>QUIANLUJ KAIQI, del sector automotriz, nace con la visión de movilizar la confianza del país a través de soluciones mecánicas confiables. Su identidad visual sólida y coherente refleja una marca tecnológica, moderna y humana.</p>
+                            <img src="freepik__the-style-is-candid-image-photography-with-natural__79998.png" alt="" class="rounded-lg shadow-lg mx-auto max-w-sm w-full">
+                        </div>
+                    </details>
+                    <details class="bg-white/10 p-6 rounded-lg backdrop-blur-sm cursor-pointer">
+                        <summary class="text-xl font-semibold">Diagnóstico: Hallazgos Clave</summary>
+                        <ul class="mt-4 opacity-90 list-disc list-inside space-y-2">
+                            <li><strong>Marca Coherente, Potencial Infrautilizado:</strong> La identidad visual necesita ser capitalizada con contenido emocional.</li>
+                            <li><strong>Oportunidad en Automatización:</strong> Ausencia de un CRM consolidado, generando fugas en conversión y fidelización.</li>
+                            <li><strong>Falta de Métricas Integradas:</strong> Decisiones basadas en percepción, no en datos consolidados.</li>
+                        </ul>
+                    </details>
+                    <details class="bg-white/10 p-6 rounded-lg backdrop-blur-sm cursor-pointer">
+                        <summary class="text-xl font-semibold">Estrategia ADSI Aplicada</summary>
+                         <div class="mt-4 opacity-90 space-y-4">
+                           <p>Implementamos una estrategia integral de digitalización emocional para transformar la potencia visual y técnica en un ecosistema de crecimiento, enfocada en tres áreas:</p>
+                           <ul class="list-disc list-inside">
+                               <li>Digitalización Inteligente y Automatización CRM.</li>
+                               <li>Estrategia de Contenidos Emocionales y Técnicos.</li>
+                               <li>Optimización del Ecosistema Omnicanal.</li>
+                           </ul>
+                           <img src="freepik__the-style-is-candid-image-photography-with-natural__80012.png" alt="" class="rounded-lg shadow-lg mx-auto max-w-lg w-full">
+                        </div>
+                    </details>
+                </div>
+                 <div class="mt-16 text-center">
+                    <p class="text-lg opacity-80 mb-4">La identidad visual es la cara tangible de la estrategia.</p>
+                    <a href="#galeria" data-target="galeria" class="btn-primary scene-nav">Explorar Galería Visual →</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="galeria" class="scene py-24 px-6 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
+            <canvas class="canvas-bg" id="canvas-galeria"></canvas>
+            <div class="content-z container mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Galería Visual QUIANLUJ KAIQI</h2>
+                <p class="text-xl max-w-3xl mx-auto opacity-80 mb-12">
+                Identidad visual, ecosistema digital y aplicaciones de marca. Una visión tangible de confianza e innovación.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <img src="freepik__the-style-is-candid-image-photography-with-natural__79998.png" alt="Logo QUIANLUJ KAIQI Colombia S.A.S." class="rounded-2xl shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer">
+                    <img src="freepik__the-style-is-candid-image-photography-with-natural__80012.png" alt="Mockup web en monitor" class="rounded-2xl shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer">
+                    <img src="freepik__the-style-is-candid-image-photography-with-natural__80016.png" alt="Brand board con aplicaciones" class="rounded-2xl shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer">
+                    <img src="freepik__-prompt-experto-logotipo-kaiqi-prompt-versin-exten__80001.png" alt="Logotipo KAIQI metálico" class="rounded-2xl shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer">
+                    <img src="freepik__a-highresolution-digital-screen-mockup-displaying-__80855.png" alt="Mockup sitio web KAIQI" class="rounded-2xl shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer">
+                    <img src="freepik__-prompt-experto-logotipo-kaiqi-prompt-versin-exten__80003.png" alt="Brand Board KAIQI" class="rounded-2xl shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer">
+                </div>
+
+                <div class="mt-16">
+                <p class="text-lg opacity-80 mb-4">Cada imagen representa una faceta del ecosistema KAIQI: diseño, coherencia y propósito.</p>
+                <a href="#cuestionario" data-target="cuestionario" class="btn-primary scene-nav">Continuar al Diagnóstico Ejecutivo →</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="cuestionario" class="scene py-24 px-6" style="background-color: var(--blanco); color: var(--gris-acero);">
+            <canvas class="canvas-bg" id="canvas-cuestionario"></canvas>
+            <div class="content-z container mx-auto max-w-3xl">
+                <div class="text-center pt-12">
+                     <h2 class="text-4xl md:text-5xl font-extrabold">Acción Estratégica</h2>
+                     <p class="mt-4 text-xl max-w-3xl mx-auto text-gray-600">Evalúa el nivel de integración de tu organización en 2 minutos.</p>
+                </div>
+                <div id="questionnaire-container" class="mt-12 bg-white p-8 rounded-2xl shadow-2xl"></div>
+                <div id="results-container" class="mt-12 text-center" style="display: none;">
+                    <h3 class="text-3xl font-bold">Tu Índice de Alineación ADSI</h3>
+                    <div class="w-full max-w-md mx-auto my-8"><canvas id="radarChart"></canvas></div>
+                    <p class="text-lg">Tu organización se encuentra en un nivel <strong id="result-level" class="text-[--azul-electrico]"></strong>.</p>
+                    <p id="result-phrase" class="mt-4 text-gray-500"></p>
+                    <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="mailto:adsicctcol@gmail.com?subject=Solicitud de Cotización Piloto ADSI" class="btn-primary">Solicitar Cotización</a>
+                        <a href="mailto:adsicctcol@gmail.com?subject=Agendar Sesión con Especialista ADSI" class="btn-secondary" style="background-color: var(--gris-acero); color: var(--blanco)">Hablar con un Especialista</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-10 text-sm text-gray-500 mt-16 border-t">
+      “Juntos, transformamos confianza en resultados.<br>Confianza entre datos, decisiones y personas.”
+      <div class="mt-4 flex flex-wrap justify-center gap-3 text-sm">
+        <a href="#manifiesto" data-target="manifiesto" class="text-[--azul-electrico] hover:underline scene-nav">Manifiesto</a> • 
+        <a href="#ecosistema" data-target="ecosistema" class="text-[--azul-electrico] hover:underline scene-nav">Ecosistema</a> • 
+        <a href="#resumen" data-target="resumen" class="text-[--azul-electrico] hover:underline scene-nav">Resumen Ejecutivo</a> • 
+        <a href="#galeria" data-target="galeria" class="text-[--azul-electrico] hover:underline scene-nav">Galería</a> • 
+        <a href="#cuestionario" data-target="cuestionario" class="text-[--azul-electrico] hover:underline scene-nav">Cuestionario ADSI</a>
+      </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scenes = document.querySelectorAll('.scene');
+            const navLinks = document.querySelectorAll('.scene-nav');
+            const mainHeader = document.getElementById('main-header');
+            
+            const data = {
+                ecosistema: {
+                    'cerebro': { icon: '🧠', name: 'Cerebro', desc: 'Analiza comportamientos, mide desempeño y anticipa oportunidades.' },
+                    'pasarela': { icon: '💳', name: 'Pasarela', desc: 'Garantiza flujos seguros, trazables y estables.' },
+                    'catalogo': { icon: '🧱', name: 'Catálogo', desc: 'Centraliza portafolios y contenidos en tiempo real.' },
+                    'operacion': { icon: '⚙️', name: 'Operación', desc: 'Convierte estrategias en acciones coordinadas y medibles.' },
+                    'envios': { icon: '🚚', name: 'Envíos', desc: 'Optimiza la logística con precisión inteligente.' },
+                    'retroalimentacion': { icon: '🔄', name: 'Retroalimentación', desc: 'Evalúa, aprende y mejora el sistema en tiempo real.' }
+                },
+                cuestionario: [
+                    { question: "¿Tu empresa cuenta con procesos medibles en tiempo real?", category: "procesos", options: [ { text: "No, los reportes son manuales", value: 2 }, { text: "Parcialmente, en algunas áreas clave", value: 6 }, { text: "Sí, los datos se actualizan de forma automática", value: 10 } ] },
+                    { question: "¿Cómo describirías la cultura digital de tu equipo?", category: "cultura", options: [ { text: "Resistente al cambio", value: 3 }, { text: "Abierta pero sin un guía clara", value: 7 }, { text: "Proactiva y orientada a la innovación", value: 10 } ] },
+                    { question: "¿Las decisiones estratégicas se basan principalmente en datos o en intuición?", category: "estrategia", options: [ { text: "Principalmente en intuición", value: 2 }, { text: "Una mezcla de ambos", value: 6 }, { text: "Principalmente en análisis de datos", value: 10 } ] },
+                    { question: "¿Qué tan integradas están tus herramientas tecnológicas (CRM, Marketing, Ventas)?", category: "tecnologia", options: [ { text: "No están integradas, operan en silos", value: 2 }, { text: "Algunas están conectadas, pero hay brechas", value: 5 }, { text: "Totalmente integradas en un ecosistema fluido", value: 10 } ] }
+                ]
+            };
+
+            function updateHeaderStyle(targetId) {
+                if (targetId === 'cuestionario') {
+                    mainHeader.style.color = 'var(--gris-acero)';
+                    mainHeader.style.backgroundColor = 'rgba(255,255,255,0.5)';
+                } else {
+                    mainHeader.style.color = 'white';
+                    mainHeader.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                }
+            }
+            
+            let currentActiveScene = null;
+            function navigateTo(targetId) {
+                if (currentActiveScene) {
+                    currentActiveScene.classList.remove('active');
+                }
+                
+                const targetScene = document.getElementById(targetId);
+                if (targetScene) {
+                    scenes.forEach(s => { s.style.position = 'fixed'; });
+                    targetScene.classList.add('active');
+                    targetScene.style.position = 'relative';
+                    currentActiveScene = targetScene;
+                    
+                    window.location.hash = targetId;
+                    localStorage.setItem('lastActiveScene', targetId);
+                    updateHeaderStyle(targetId);
+
+                    if (targetId === 'manifiesto') {
+                        const h1 = targetScene.querySelector('.typing-effect');
+                        h1.classList.remove('animate-typing');
+                        void h1.offsetWidth;
+                        h1.classList.add('animate-typing');
+                    }
+                    if(targetId === 'cuestionario' && !document.getElementById('questionnaire-container').hasChildNodes()){
+                         renderQuestion();
+                    }
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateTo(e.currentTarget.dataset.target);
+                });
+            });
+
+            const lastScene = localStorage.getItem('lastActiveScene');
+            const initialScene = window.location.hash.substring(1) || 'manifiesto';
+            navigateTo(initialScene);
+            
+            const ecosistemaGrid = document.getElementById('ecosistema-grid');
+            const ecosistemaDisplay = document.getElementById('ecosistema-display');
+            Object.entries(data.ecosistema).forEach(([key, mod]) => {
+                const card = document.createElement('div');
+                card.className = 'p-6 bg-white/10 rounded-2xl text-center cursor-pointer transition-all duration-300 hover:bg-white/20 hover:scale-105';
+                card.innerHTML = `<div class="text-5xl">${mod.icon}</div><h4 class="mt-4 font-bold text-xl">${mod.name}</h4>`;
+                card.addEventListener('click', () => {
+                    ecosistemaDisplay.innerHTML = `<h4 class="font-bold text-2xl">${mod.name}</h4><p class="mt-2 text-lg">${mod.desc}</p>`;
+                });
+                ecosistemaGrid.appendChild(card);
+            });
+
+            const questionnaireContainer = document.getElementById('questionnaire-container');
+            const resultsContainer = document.getElementById('results-container');
+            let currentQuestion = 0;
+            let userScores = JSON.parse(localStorage.getItem('questionnaireProgress')) || {};
+
+            const resultPhrases = {
+              Emergente: "Estás comenzando el camino hacia la integración digital. Es el momento perfecto para construir una base sólida.",
+              Integrado: "Tu empresa está en un punto sólido de conexión tecnológica. El siguiente paso es optimizar y escalar.",
+              Avanzado: "Estás liderando con visión estratégica. ADSI puede ayudarte a consolidar tu liderazgo y explorar nuevas fronteras."
+            };
+
+            function renderQuestion() {
+                const q = data.cuestionario[currentQuestion];
+                 let optionsHtml = q.options.map((opt, i) => `
+                    <div class="mt-2">
+                        <input type="radio" name="q${currentQuestion}" id="q${currentQuestion}o${i}" value="${opt.value}" data-category="${q.category}" class="sr-only">
+                        <label for="q${currentQuestion}o${i}" class="block w-full text-left p-4 border rounded-lg cursor-pointer transition hover:border-[--azul-electrico]">${opt.text}</label>
+                    </div>
+                `).join('');
+
+                const questionHTML = `
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+                        <div class="bg-[--azul-electrico] h-2.5 rounded-full transition-all duration-500" style="width: ${((currentQuestion) / data.cuestionario.length) * 100}%"></div>
+                    </div>
+                    <div class="question-step">
+                        <h3 class="text-2xl font-semibold mb-4">${currentQuestion + 1}. ${q.question}</h3>
+                        ${optionsHtml}
+                        <button id="next-btn" class="mt-8 bg-gray-300 text-white font-bold py-2 px-6 rounded-full cursor-not-allowed" disabled>Siguiente</button>
+                    </div>`;
+                
+                questionnaireContainer.innerHTML = questionHTML;
+                setTimeout(() => {
+                    questionnaireContainer.querySelector('.question-step').classList.add('active');
+                }, 10);
+                
+                questionnaireContainer.querySelectorAll(`input[name="q${currentQuestion}"]`).forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        userScores[e.target.dataset.category] = parseInt(e.target.value, 10);
+                        localStorage.setItem('questionnaireProgress', JSON.stringify(userScores));
+                        const nextBtn = document.getElementById('next-btn');
+                        nextBtn.disabled = false;
+                        nextBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+                        nextBtn.classList.add('bg-[--azul-electrico]');
+                    });
+                });
+
+                document.getElementById('next-btn').addEventListener('click', () => {
+                    currentQuestion++;
+                    if (currentQuestion < data.cuestionario.length) {
+                        renderQuestion();
+                    } else {
+                        showResults();
+                    }
+                });
+            }
+
+            function showResults() {
+                questionnaireContainer.style.display = 'none';
+                resultsContainer.style.display = 'block';
+                
+                const scores = {
+                    estrategia: userScores.estrategia || 0,
+                    tecnologia: userScores.tecnologia || 0,
+                    cultura: userScores.cultura || 0,
+                    procesos: userScores.procesos || 0,
+                };
+                
+                const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+                let level = 'Emergente';
+                if (totalScore > 25) level = 'Integrado';
+                if (totalScore > 35) level = 'Avanzado';
+                document.getElementById('result-level').textContent = level;
+                document.getElementById('result-phrase').textContent = resultPhrases[level];
+
+                const chart = new Chart(document.getElementById('radarChart'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Estrategia', 'Tecnología', 'Cultura', 'Procesos'],
+                        datasets: [{
+                            label: 'Índice de Alineación',
+                            data: [0,0,0,0],
+                            backgroundColor: 'rgba(0, 70, 255, 0.2)',
+                            borderColor: 'rgba(0, 70, 255, 1)',
+                            pointBackgroundColor: 'rgba(0, 70, 255, 1)',
+                        }]
+                    },
+                    options: { 
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeOutBounce'
+                        },
+                        scales: { r: { beginAtZero: true, max: 100, ticks: { display: false } } }, 
+                        plugins: { legend: { display: false } } 
+                    }
+                });
+                setTimeout(() => {
+                    chart.data.datasets[0].data = Object.values(scores).map(s => s * 10);
+                    chart.update();
+                }, 300);
+            }
+
+            function setupCanvasAnimation(id, options) {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const config = { ...{ numNodes: 40, nodeColor: 'rgba(255,255,255,0.5)', lineColor: 'rgba(255,255,255,0.2)' }, ...options };
+                let nodes = [];
+
+                function resize() {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                    nodes = Array.from({ length: config.numNodes }, () => ({
+                        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3
+                    }));
+                }
+
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    nodes.forEach(n => {
+                        n.x += n.vx; n.y += n.vy;
+                        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+                        ctx.beginPath(); ctx.arc(n.x, n.y, 1.5, 0, Math.PI * 2); ctx.fillStyle = config.nodeColor; ctx.fill();
+                    });
+                    for (let i = 0; i < nodes.length; i++) {
+                        for (let j = i + 1; j < nodes.length; j++) {
+                            const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+                            if (dist < 200) {
+                                ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
+                                ctx.strokeStyle = config.lineColor; ctx.lineWidth = 1 - dist / 200; ctx.stroke();
+                            }
+                        }
+                    }
+                    requestAnimationFrame(draw);
+                }
+                
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(resize, 200);
+                });
+
+                resize();
+                draw();
+            }
+
+            setupCanvasAnimation('canvas-manifiesto', { nodeColor: 'rgba(255,255,255,0.7)', lineColor: 'rgba(255,255,255,0.3)' });
+            setupCanvasAnimation('canvas-ecosistema', { nodeColor: 'rgba(0, 224, 255, 0.7)', lineColor: 'rgba(0, 224, 255, 0.3)' });
+            setupCanvasAnimation('canvas-resumen', { nodeColor: 'rgba(255,255,255,0.5)', lineColor: 'rgba(255,255,255,0.2)' });
+            setupCanvasAnimation('canvas-galeria', { nodeColor: 'rgba(0, 224, 255, 0.6)', lineColor: 'rgba(0, 224, 255, 0.3)' });
+            setupCanvasAnimation('canvas-cuestionario', { nodeColor: 'rgba(0, 70, 255, 0.4)', lineColor: 'rgba(0, 70, 255, 0.2)' });
+        
+            if (window.location.search.includes('demo')) {
+                const autoScenes = ['manifiesto', 'ecosistema', 'resumen', 'galeria', 'cuestionario'];
+                let autoIndex = 0;
+                setInterval(() => {
+                    autoIndex = (autoIndex + 1) % autoScenes.length;
+                    navigateTo(autoScenes[autoIndex]);
+                }, 15000);
+            }
+        });
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+
