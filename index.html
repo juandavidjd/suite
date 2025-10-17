@@ -88,10 +88,12 @@
         
         .typing-effect {
             overflow: hidden;
-            white-space: nowrap;
+            white-space: normal; /* Cambiado de nowrap a normal */
             border-right: 2px solid rgba(255,255,255,0.75);
-            width: 0;
+            display: inline-block; /* añadido */
+            max-width: 90%; /* añadido */
             margin: 0 auto;
+            text-align: center; /* añadido */
         }
         .animate-typing {
             animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite;
@@ -111,6 +113,12 @@
                 font-size: 1.75rem !important;
                 line-height: 1.3 !important;
                 padding: 0 1rem;
+            }
+             #manifiesto h1.typing-effect {
+                font-size: 1.4rem !important;
+                line-height: 1.4;
+                white-space: normal !important;
+                max-width: 90%;
             }
             #manifiesto p {
                 font-size: 1rem !important;
@@ -160,7 +168,7 @@
         <section id="manifiesto" class="scene p-6" style="background-color: var(--azul-profundo); color: var(--blanco);">
             <canvas class="canvas-bg" id="canvas-manifiesto"></canvas>
             <div class="content-z text-center">
-                <h1 class="text-4xl md:text-6xl font-extrabold leading-tight typing-effect">La tecnología no es solo código.<br>Es la conexión entre confianza, datos y personas.</h1>
+                <h1 class="text-4xl md:text-6xl font-extrabold leading-tight typing-effect">La tecnología no es solo código. Es la conexión entre confianza, datos y personas.</h1>
                 <p class="mt-8 text-xl opacity-80">Somos un sistema vivo que aprende contigo. Transformamos confianza en resultados.</p>
                 <div class="mt-12">
                     <a href="#ecosistema" data-target="ecosistema" class="btn-primary scene-nav">Explorar el Ecosistema ADSI →</a>
@@ -198,7 +206,7 @@
                         <summary class="text-xl font-semibold">Contexto: Una Marca con Potencial</summary>
                         <div class="mt-4 opacity-90 space-y-4">
                             <p>QUIANLUJ KAIQI, del sector automotriz, nace con la visión de movilizar la confianza del país a través de soluciones mecánicas confiables. Su identidad visual sólida y coherente refleja una marca tecnológica, moderna y humana.</p>
-                            <img src="./freepik__the-style-is-candid-image-photography-with-natural__79998.png" alt="" class="rounded-lg shadow-lg mx-auto max-w-sm w-full">
+                            <img src="./freepik__the-style-is-candid-image-photography-with-natural__79998.png" alt="Logo de Quianluj Kaiqi" class="rounded-lg shadow-lg mx-auto max-w-sm w-full">
                         </div>
                     </details>
                     <details class="bg-white/10 p-6 rounded-lg backdrop-blur-sm cursor-pointer">
@@ -212,13 +220,13 @@
                     <details class="bg-white/10 p-6 rounded-lg backdrop-blur-sm cursor-pointer">
                         <summary class="text-xl font-semibold">Estrategia ADSI Aplicada</summary>
                          <div class="mt-4 opacity-90 space-y-4">
-                           <p>Implementamos una estrategia integral de digitalización emocional para transformar la potencia visual y técnica en un ecosistema de crecimiento, enfocada en tres áreas:</p>
-                           <ul class="list-disc list-inside">
-                               <li>Digitalización Inteligente y Automatización CRM.</li>
-                               <li>Estrategia de Contenidos Emocionales y Técnicos.</li>
-                               <li>Optimización del Ecosistema Omnicanal.</li>
-                           </ul>
-                           <img src="./freepik__the-style-is-candid-image-photography-with-natural__80012.png" alt="" class="rounded-lg shadow-lg mx-auto max-w-lg w-full">
+                            <p>Implementamos una estrategia integral de digitalización emocional para transformar la potencia visual y técnica en un ecosistema de crecimiento, enfocada en tres áreas:</p>
+                            <ul class="list-disc list-inside">
+                                <li>Digitalización Inteligente y Automatización CRM.</li>
+                                <li>Estrategia de Contenidos Emocionales y Técnicos.</li>
+                                <li>Optimización del Ecosistema Omnicanal.</li>
+                            </ul>
+                            <img src="./freepik__the-style-is-candid-image-photography-with-natural__80012.png" alt="Website de Quianluj Kaiqi en un monitor" class="rounded-lg shadow-lg mx-auto max-w-lg w-full">
                         </div>
                     </details>
                 </div>
@@ -342,7 +350,7 @@
                         h1.classList.add('animate-typing');
                     }
                     if(targetId === 'cuestionario' && !document.getElementById('questionnaire-container').hasChildNodes()){
-                         renderQuestion();
+                          renderQuestion();
                     }
                 }
             }
@@ -366,6 +374,7 @@
                 card.innerHTML = `<div class="text-5xl">${mod.icon}</div><h4 class="mt-4 font-bold text-xl">${mod.name}</h4>`;
                 card.addEventListener('click', () => {
                     ecosistemaDisplay.innerHTML = `<h4 class="font-bold text-2xl">${mod.name}</h4><p class="mt-2 text-lg">${mod.desc}</p>`;
+                    ecosistemaDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 });
                 ecosistemaGrid.appendChild(card);
             });
