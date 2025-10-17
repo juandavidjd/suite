@@ -1,12 +1,11 @@
-const CACHE_NAME = 'adsi-suite-v2'; // Versión actualizada para forzar la renovación del caché
+const CACHE_NAME = 'adsi-suite-v2';
 const urlsToCache = [
   './',
   './index.html',
-  './offline.html', // Página de respaldo para modo offline
+  './offline.html',
   './site.webmanifest',
   './browserconfig.xml',
   './favicon.ico',
-  './favicon-150.png',
   './favicon-192.png',
   './favicon-512.png',
   './freepik__the-style-is-candid-image-photography-with-natural__79998.png',
@@ -20,29 +19,23 @@ const urlsToCache = [
   'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Poppins:wght@700;800&display=swap'
 ];
 
-// Instala el Service Worker y guarda los archivos en el caché
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache abierto y listo para guardar archivos.');
+        console.log('Cache abierto');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// Intercepta las solicitudes de red con fallback offline
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Si el recurso está en el caché, lo devuelve. Si no, lo busca en la red.
-        return response || fetch(event.request).catch(() => caches.match('./offline.html'));
-      })
+      .then(response => response || fetch(event.request).catch(() => caches.match('./offline.html')))
   );
 });
 
-// Activa el nuevo Service Worker y elimina cachés antiguos
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -50,7 +43,6 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Eliminando caché antiguo:', cacheName);
             return caches.delete(cacheName);
           }
         })
