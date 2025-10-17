@@ -1,7 +1,8 @@
 const CACHE_NAME = 'adsi-suite-v2'; // Versión actualizada para forzar la renovación del caché
 const urlsToCache = [
   './',
-  './index.html', // Asumiendo que el archivo principal se llama index.html
+  './index.html',
+  './offline.html', // Página de respaldo para modo offline
   './site.webmanifest',
   './browserconfig.xml',
   './favicon.ico',
@@ -30,13 +31,13 @@ self.addEventListener('install', event => {
   );
 });
 
-// Intercepta las solicitudes de red
+// Intercepta las solicitudes de red con fallback offline
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         // Si el recurso está en el caché, lo devuelve. Si no, lo busca en la red.
-        return response || fetch(event.request);
+        return response || fetch(event.request).catch(() => caches.match('./offline.html'));
       })
   );
 });
