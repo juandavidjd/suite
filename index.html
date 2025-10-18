@@ -406,38 +406,42 @@
                     <div class="question-step">
                         <h3 class="text-2xl font-semibold mb-4">${currentQuestion + 1}. ${q.question}</h3>
                         ${optionsHtml}
-                        <button id="next-btn" class="mt-8 bg-gray-300 text-white font-bold py-2 px-6 rounded-full cursor-not-allowed" disabled>Siguiente</button>
                     </div>`;
                 
                 questionnaireContainer.innerHTML = questionHTML;
+                
+                // Desplazar a la parte superior del contenedor de la pregunta
+                if (currentQuestion > 0) {
+                    questionnaireContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
                 setTimeout(() => {
                     questionnaireContainer.querySelector('.question-step').classList.add('active');
                 }, 10);
                 
                 questionnaireContainer.querySelectorAll(`input[name="q${currentQuestion}"]`).forEach(radio => {
                     radio.addEventListener('change', (e) => {
+                        // Guardar la puntuación
                         userScores[e.target.dataset.category] = parseInt(e.target.value, 10);
                         localStorage.setItem('questionnaireProgress', JSON.stringify(userScores));
-                        const nextBtn = document.getElementById('next-btn');
-                        nextBtn.disabled = false;
-                        nextBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
-                        nextBtn.classList.add('bg-[--azul-electrico]');
+                        
+                        // Avanzar a la siguiente pregunta después de un breve retraso
+                        setTimeout(() => {
+                            currentQuestion++;
+                            if (currentQuestion < data.cuestionario.length) {
+                                renderQuestion();
+                            } else {
+                                showResults();
+                            }
+                        }, 400); // 400ms de retraso
                     });
-                });
-
-                document.getElementById('next-btn').addEventListener('click', () => {
-                    currentQuestion++;
-                    if (currentQuestion < data.cuestionario.length) {
-                        renderQuestion();
-                    } else {
-                        showResults();
-                    }
                 });
             }
 
             function showResults() {
                 questionnaireContainer.style.display = 'none';
                 resultsContainer.style.display = 'block';
+                 resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
                 const scores = {
                     estrategia: userScores.estrategia || 0,
